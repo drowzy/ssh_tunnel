@@ -10,7 +10,7 @@ defmodule SSHt do
       {Task.Supervisor, name: SSHt.TaskSupervisor}
     ]
 
-    supervise(children, strategy: :one_for_one)
+    Supervisor.init(children, strategy: :one_for_one)
   end
 
   defdelegate connect(opts), to: SSHt.Conn

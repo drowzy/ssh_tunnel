@@ -4,12 +4,12 @@ defmodule SSHt.TcpProxy do
 
   @default_opts [:binary, active: false, reuseaddr: true, packet: 0]
 
-  def listen(path, :local) do
+  def listen(path, :unix) do
     opts = @default_opts ++ [ifaddr: {:local, socket_path(path)}]
     :gen_tcp.listen(0, opts)
   end
 
-  def listen(port, :port), do: :gen_tcp.listen(port, @default_opts)
+  def listen(port, :tcpip), do: :gen_tcp.listen(port, @default_opts)
 
   def accept(socket, callback) do
     {:ok, client_socket} = :gen_tcp.accept(socket)
