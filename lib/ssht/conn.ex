@@ -2,6 +2,10 @@ defmodule SSHt.Conn do
   defstruct host: nil, port: nil, conn: nil
 
   @direct_tcpip String.to_charlist("direct-tcpip")
+  @stream_local String.to_charlist("direct-streamlocal@openssh.com")
+
+  @ini_window_size 1024 * 1024
+  @max_packet_size 32 * 1024
 
   def connect(opts \\ []) do
     host = Keyword.get(opts, :host, "127.0.0.1")
@@ -18,7 +22,6 @@ defmodule SSHt.Conn do
     {orig_host, orig_port} = from
     {remote_host, remote_port} = to
 
-    # Need to prepend the size of hostname fields
     remote_len = byte_size(remote_host)
     orig_len = byte_size(orig_host)
 
@@ -31,7 +34,27 @@ defmodule SSHt.Conn do
       orig_port::size(32)
     >>
 
-    :ssh_connection_handler.open_channel(conn, @direct_tcpip, msg, 1024 * 1024, 32 * 1024, 5000)
+    :ssh_connection_handler.open_channel(
+      conn,
+      @direct_tcpip,
+      msg,
+      @ini_window_size,
+      @max_packet_size,
+      5000
+    )
+  end
+
+  def stream_local_forward(%__MODULE__{conn: conn}, socket_path, opts \\ []) do
+    msg = <<byte_size(socket_path)::size(32), socket_path::binary, 0::size(32), 0::size(32)>>
+
+    :ssh_connection_handler.open_channel(
+      conn,
+      @stream_local,
+      msg,
+      @ini_window_size,
+      @max_packet_size,
+      5000
+    )
   end
 
   defp defaults(opts) do

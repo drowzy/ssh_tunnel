@@ -7,11 +7,11 @@ defmodule SSHt.TcpServerTest do
   #   {:ok, %{ls: ls, port: port}}
   # end
   setup do
-    {:ok, pid} = SSHt.start_link
+    {:ok, pid} = SSHt.start_link()
 
-    on_exit fn ->
+    on_exit(fn ->
       assert_down(pid)
-    end
+    end)
 
     :ok
   end
