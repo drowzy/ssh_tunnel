@@ -7,7 +7,7 @@ defmodule SSHt do
 
   def init(_args) do
     children = [
-      {Task.Supervisor, name: SSHt.TaskSupervisor}
+      {DynamicSupervisor, name: SSHt.TunnelSupervisor, strategy: :one_for_one}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
