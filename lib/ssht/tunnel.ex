@@ -2,7 +2,7 @@ defmodule SSHt.Tunnel do
   require Logger
 
   def start_link(opts) do
-    DynamicSupervisor.start_child(SSHt.TunnelSupervisor, SSHt.Tunnel.TCPServer)
+    DynamicSupervisor.start_child(SSHt.TunnelSupervisor, worker_spec(opts))
   end
 
   defp worker_spec(opts) do
