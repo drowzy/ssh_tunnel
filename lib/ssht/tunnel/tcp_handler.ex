@@ -42,8 +42,16 @@ defmodule SSHt.Tunnel.TCPHandler do
     {:stop, :normal, state}
   end
 
+  def handle_info(
+        {:ssh_cm, _, {:data, channel, _, data}},
+        %{socket: socket, transport: transport} = state
+      ) do
+    :ok = transport.send(socket, data)
+    {:noreply, state}
+  end
+
   defp stringify_clientname(socket) do
-    {:ok, {addr, port}} = :inet.clientname(socket)
+    {:ok, {addr, port}} = :inet.peername(socket)
 
     address =
       addr

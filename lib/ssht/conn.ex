@@ -40,7 +40,7 @@ defmodule SSHt.Conn do
       msg,
       @ini_window_size,
       @max_packet_size,
-      5000
+      :infinity
     )
   end
 
@@ -53,7 +53,7 @@ defmodule SSHt.Conn do
       msg,
       @ini_window_size,
       @max_packet_size,
-      5000
+      :infinity
     )
   end
 

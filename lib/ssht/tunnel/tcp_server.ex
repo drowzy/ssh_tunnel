@@ -29,6 +29,14 @@ defmodule SSHt.Tunnel.TCPServer do
 
     {:ok, %{server: pid, name: name, ch: ch, ssh: ssh}}
   end
+
+  def handle_info({:ssh_cm, _pid, {:data, _channel, _, _message}} = msg, %{name: name} = state) do
+    name
+    |> :ranch.procs(:connections)
+    |> Enum.each(&send(&1, msg))
+
+    Logger.debug(fn -> "Received SSH event #{inspect(msg)}" end)
+    {:noreply, state}
   end
 
   defp default_opts(opts) do

@@ -1,12 +1,13 @@
 defmodule SSHt.Tunnel do
   require Logger
 
-  def start_link(opts) do
-    DynamicSupervisor.start_child(SSHt.TunnelSupervisor, worker_spec(opts))
+  def start_link(%SSHt.Conn{} = ssh, opts) do
+    DynamicSupervisor.start_child(SSHt.TunnelSupervisor, worker_spec(ssh, opts))
   end
 
-  defp worker_spec(opts) do
-    {SSHt.Tunnel.TCPServer, Keyword.merge(opts, name: base_name(8080))}
+  defp worker_spec(ssh, opts) do
+    {_, port_or_path} = Keyword.get(opts, :from)
+    {SSHt.Tunnel.TCPServer, Keyword.merge(opts, ssh: ssh, name: base_name(port_or_path))}
   end
 
   def base_name(port_or_path) do
