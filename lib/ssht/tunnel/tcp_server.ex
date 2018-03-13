@@ -4,20 +4,31 @@ defmodule SSHt.Tunnel.TCPServer do
 
   alias SSHt.Tunnel.TCPHandler
 
-  def start_link(args) do
-    GenServer.start_link(__MODULE__, args, args)
+  def start_link(opts) do
+    GenServer.start_link(__MODULE__, opts, opts)
   end
 
-  def init(args) do
-    name = Keyword.get(args, :name)
-    {_, port} = Keyword.get(args, :from)
-    opts = [{:port, port}]
+  def init(opts) do
+    from = {_, port} = Keyword.get(opts, :from)
+    name = Keyword.get(opts, :name)
+    to = Keyword.get(opts, :to)
+    ssh = Keyword.get(opts, :ssh)
 
-    {:ok, pid} = :ranch.start_listener(name, :ranch_tcp, opts, TCPHandler, [])
+    {:open, ch} = SSHt.Conn.direct_tcpip(ssh, from, to)
+
+    {:ok, pid} =
+      :ranch.start_listener(
+        name,
+        :ranch_tcp,
+        [{:port, port}],
+        TCPHandler,
+        Keyword.merge(opts, channel: ch)
+      )
 
     Logger.info(fn -> "Starting server #{name}" end)
 
-    {:ok, pid}
+    {:ok, %{server: pid, name: name, ch: ch, ssh: ssh}}
+  end
   end
 
   defp default_opts(opts) do
