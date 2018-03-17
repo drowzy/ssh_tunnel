@@ -12,7 +12,7 @@ defmodule SSHt.Tunnel.TCPHandler do
     target = Keyword.get(opts, :target)
     ssh_ref = Keyword.get(opts, :ssh_ref)
 
-    {:open, channel} = ssh_forward(ssh_ref, target)
+    {:ok, channel} = ssh_forward(ssh_ref, target)
     :ok = :ranch.accept_ack(ref)
     :ok = transport.setopts(socket, [{:active, true}])
 

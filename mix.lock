@@ -1,4 +1,5 @@
 %{
+  "dialyxir": {:hex, :dialyxir, "0.5.1", "b331b091720fd93e878137add264bac4f644e1ddae07a70bf7062c7862c4b952", [:mix], [], "hexpm"},
   "ranch": {:hex, :ranch, "1.4.0", "10272f95da79340fa7e8774ba7930b901713d272905d0012b06ca6d994f8826b", [:rebar3], [], "hexpm"},
   "temp": {:hex, :temp, "0.4.4", "da4524a102db9431f96b2b244777017eb077df3db344957cd1d10705feb25337", [:mix], [], "hexpm"},
 }

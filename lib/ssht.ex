@@ -5,8 +5,11 @@ defmodule SSHt do
   @ini_window_size 1024 * 1024
   @max_packet_size 32 * 1024
 
+  @type location :: {String.t(), integer()}
+
   defdelegate start_link(ref, to), to: SSHt.Tunnel
 
+  @spec connect(Keyword.t()) :: {:ok, pid()} | {:error, term()}
   def connect(opts \\ []) do
     host = Keyword.get(opts, :host, "127.0.0.1")
     port = Keyword.get(opts, :port, 22)
@@ -15,6 +18,7 @@ defmodule SSHt do
     :ssh.connect(String.to_charlist(host), port, ssh_config)
   end
 
+  @spec direct_tcpip(pid(), location, location) :: {:ok, integer()} | {:error, term()}
   def direct_tcpip(ref, from, to) do
     {orig_host, orig_port} = from
     {remote_host, remote_port} = to
@@ -31,27 +35,34 @@ defmodule SSHt do
       orig_port::size(32)
     >>
 
-    :ssh_connection_handler.open_channel(
-      ref,
-      @direct_tcpip,
-      msg,
-      @ini_window_size,
-      @max_packet_size,
-      :infinity
-    )
+    case :ssh_connection_handler.open_channel(
+           ref,
+           @direct_tcpip,
+           msg,
+           @ini_window_size,
+           @max_packet_size,
+           :infinity
+         ) do
+      {:open, ch} -> {:ok, ch}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
-  def stream_local_forward(ref, socket_path, _opts \\ []) do
+  @spec stream_local_forward(pid(), String.t()) :: {:ok, integer()} | {:error, term()}
+  def stream_local_forward(ref, socket_path) do
     msg = <<byte_size(socket_path)::size(32), socket_path::binary, 0::size(32), 0::size(32)>>
 
-    :ssh_connection_handler.open_channel(
-      ref,
-      @stream_local,
-      msg,
-      @ini_window_size,
-      @max_packet_size,
-      :infinity
-    )
+    case :ssh_connection_handler.open_channel(
+           ref,
+           @stream_local,
+           msg,
+           @ini_window_size,
+           @max_packet_size,
+           :infinity
+         ) do
+      {:open, ch} -> {:ok, ch}
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   defp defaults(opts) do
