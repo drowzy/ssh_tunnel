@@ -1,8 +1,30 @@
 defmodule SSHt.Tunnel do
+  @type to :: {:tcpip | :local, tuple()}
+
+  @spec start_link(pid(), to) :: {:ok, pid()} | {:error, term()}
   def start_link(ref, to) do
     DynamicSupervisor.start_child(
       SSHt.TunnelSupervisor,
-      {SSHt.Tunnel.TCPServer, worker_opts(ref, to)}
+      worker_spec(worker_opts(ref, to))
+    )
+  end
+
+  defp worker_spec(opts) do
+    name = Keyword.get(opts, :name)
+
+    ranch_opts =
+      case Keyword.get(opts, :target) do
+        {:local, path} -> [{:local, path}]
+        {:tcpip, {port, _}} -> [{:port, port}]
+      end
+
+    :ranch.child_spec(
+      name,
+      100,
+      :ranch_tcp,
+      ranch_opts,
+      SSHt.Tunnel.TCPHandler,
+      opts
     )
   end
 

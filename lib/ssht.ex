@@ -1,4 +1,11 @@
 defmodule SSHt do
+  @moduledoc """
+  Module for creating forwarded SSH tunnels using erlang ssh
+  ```
+  {:ok, ssh} = SSHt.connect(host: "127.0.0.1", user: "user", password: "password")
+  {:ok, pid} = SSHt.Tunnel.start_link(shh, {:tcpip, {3000, {"192.168.1.30", 80}}})
+  ```
+  """
   @direct_tcpip String.to_charlist("direct-tcpip")
   @stream_local String.to_charlist("direct-streamlocal@openssh.com")
 
@@ -7,8 +14,9 @@ defmodule SSHt do
 
   @type location :: {String.t(), integer()}
 
-  defdelegate start_link(ref, to), to: SSHt.Tunnel
-
+  @doc """
+  Create a connetion to a remote host with the provided options.
+  """
   @spec connect(Keyword.t()) :: {:ok, pid()} | {:error, term()}
   def connect(opts \\ []) do
     host = Keyword.get(opts, :host, "127.0.0.1")
