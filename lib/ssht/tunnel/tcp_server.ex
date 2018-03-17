@@ -9,25 +9,28 @@ defmodule SSHt.Tunnel.TCPServer do
   end
 
   def init(opts) do
-    from = {_, port} = Keyword.get(opts, :from)
-    name = Keyword.get(opts, :name)
-    to = Keyword.get(opts, :to)
-    ssh = Keyword.get(opts, :ssh)
+    name = Keyword.get(opts, :name, "#{__MODULE__}")
+    ssh = Keyword.get(opts, :ssh_ref)
+    handler = Keyword.get(opts, :handler, TCPHandler)
 
-    {:open, ch} = SSHt.Conn.direct_tcpip(ssh, from, to)
+    ranch_opts =
+      case Keyword.get(opts, :target) do
+        {:local, path} -> [{:local, path}]
+        {:tcpip, {port, _}} -> [{:port, port}]
+      end
 
     {:ok, pid} =
       :ranch.start_listener(
         name,
         :ranch_tcp,
-        [{:port, port}],
-        TCPHandler,
-        Keyword.merge(opts, channel: ch)
+        ranch_opts,
+        handler,
+        opts
       )
 
     Logger.info(fn -> "Starting server #{name}" end)
 
-    {:ok, %{server: pid, name: name, ch: ch, ssh: ssh}}
+    {:ok, %{server: pid, name: name, ssh: ssh}}
   end
 
   def handle_info({:ssh_cm, _pid, {:data, _channel, _, _message}} = msg, %{name: name} = state) do
@@ -37,8 +40,5 @@ defmodule SSHt.Tunnel.TCPServer do
 
     Logger.debug(fn -> "Received SSH event #{inspect(msg)}" end)
     {:noreply, state}
-  end
-
-  defp default_opts(opts) do
   end
 end

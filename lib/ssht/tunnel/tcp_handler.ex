@@ -9,23 +9,27 @@ defmodule SSHt.Tunnel.TCPHandler do
 
   def init({ref, socket, transport, opts}) do
     clientname = stringify_clientname(socket)
-    channel = Keyword.get(opts, :channel)
-    ssh = Keyword.get(opts, :ssh)
+    target = Keyword.get(opts, :target)
+    ssh_ref = Keyword.get(opts, :ssh_ref)
 
+    {:open, channel} = ssh_forward(ssh_ref, target)
     :ok = :ranch.accept_ack(ref)
     :ok = transport.setopts(socket, [{:active, true}])
 
     :gen_server.enter_loop(__MODULE__, [], %{
       socket: socket,
       transport: transport,
-      ssh: ssh,
+      ssh_ref: ssh_ref,
       channel: channel,
       clientname: clientname
     })
   end
 
-  def handle_info({:tcp, _, data}, %{ssh: ssh, channel: channel, clientname: clientname} = state) do
-    :ok = :ssh_connection.send(ssh.conn, channel, data)
+  def handle_info(
+        {:tcp, _, data},
+        %{ssh_ref: ssh, channel: channel, clientname: clientname} = state
+      ) do
+    :ok = :ssh_connection.send(ssh, channel, data)
     Logger.info(fn -> "Message from: #{clientname}: #{inspect(data)}." end)
 
     {:noreply, state}
@@ -36,18 +40,38 @@ defmodule SSHt.Tunnel.TCPHandler do
     {:stop, :normal, state}
   end
 
-  def handle_info({:tcp_closed, _}, %{clientname: clientname} = state) do
-    Logger.info(fn -> "Client #{clientname} disconnected" end)
+  def handle_info(
+        {:tcp_closed, _},
+        %{clientname: clientname, ssh_ref: ssh, channel: channel} = state
+      ) do
+    Logger.info(fn -> "Client #{clientname} disconnected channel #{channel}" end)
+    :ok = :ssh_connection.close(ssh, channel)
 
     {:stop, :normal, state}
   end
 
   def handle_info(
-        {:ssh_cm, _, {:data, channel, _, data}},
+        {:ssh_cm, _, {:data, _, _, data}},
         %{socket: socket, transport: transport} = state
       ) do
     :ok = transport.send(socket, data)
     {:noreply, state}
+  end
+
+  def handle_info({:ssh_cm, _, {:eof, _channel_id}}, state) do
+    {:stop, :normal, state}
+  end
+
+  def terminate(reason, %{ssh_ref: ssh, channel: channel}) do
+    :ok = :ssh_connection.close(ssh, channel)
+    Logger.info("terminated reason #{inspect(reason)}")
+  end
+
+  defp ssh_forward(ref, target) do
+    case target do
+      {:local, path} -> SSHt.stream_local_forward(ref, path)
+      {:tcpip, {port, to}} -> SSHt.direct_tcpip(ref, {"127.0.0.1", port}, to)
+    end
   end
 
   defp stringify_clientname(socket) do

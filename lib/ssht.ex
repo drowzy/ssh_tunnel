@@ -6,7 +6,7 @@ defmodule SSHt do
   @max_packet_size 32 * 1024
 
   defdelegate connect(opts), to: SSHt.Conn
-  defdelegate start_link(ssh, opts), to: SSHt.Tunnel
+  defdelegate start_link(ref, to), to: SSHt.Tunnel
 
   def direct_tcpip(ref, from, to) do
     {orig_host, orig_port} = from
@@ -16,7 +16,7 @@ defmodule SSHt do
     orig_len = byte_size(orig_host)
 
     msg = <<
-    remote_len::size(32),
+      remote_len::size(32),
       remote_host::binary,
       remote_port::size(32),
       orig_len::size(32),
