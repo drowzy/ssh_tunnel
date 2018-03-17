@@ -30,7 +30,6 @@ defmodule SSHt.Tunnel.TCPHandler do
         %{ssh_ref: ssh, channel: channel, clientname: clientname} = state
       ) do
     :ok = :ssh_connection.send(ssh, channel, data)
-    Logger.info(fn -> "Message from: #{clientname}: #{inspect(data)}." end)
 
     {:noreply, state}
   end
