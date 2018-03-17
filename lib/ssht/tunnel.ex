@@ -1,11 +1,6 @@
 defmodule SSHt.Tunnel do
-  require Logger
-
   def start_link(ref, to) do
-    DynamicSupervisor.start_child(
-      SSHt.TunnelSupervisor,
-      {SSHt.Tunnel.TCPServer, worker_opts(ref, to)}
-    )
+    DynamicSupervisor.start_child(SSHt.TunnelSupervisor, {SSHt.Tunnel.TCPServer, worker_opts(ref, to)})
   end
 
   defp worker_opts(ref, {:tcpip, {port, _}} = to), do: basic_opts(ref, base_name(port), to)

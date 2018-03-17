@@ -42,10 +42,9 @@ defmodule SSHt.Tunnel.TCPHandler do
 
   def handle_info(
         {:tcp_closed, _},
-        %{clientname: clientname, ssh_ref: ssh, channel: channel} = state
+        %{clientname: clientname, channel: channel} = state
       ) do
     Logger.info(fn -> "Client #{clientname} disconnected channel #{channel}" end)
-    :ok = :ssh_connection.close(ssh, channel)
 
     {:stop, :normal, state}
   end
