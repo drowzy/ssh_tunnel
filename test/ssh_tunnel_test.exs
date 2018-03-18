@@ -1,6 +1,6 @@
-defmodule SSHtTest do
+defmodule SSHTunnelTest do
   use ExUnit.Case
-  doctest SSHt
+  doctest SSHTunnel
 
   test "greets the world" do
     assert true

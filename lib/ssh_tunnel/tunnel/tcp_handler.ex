@@ -1,4 +1,4 @@
-defmodule SSHt.Tunnel.TCPHandler do
+defmodule SSHTunnel.Tunnel.TCPHandler do
   use GenServer
   require Logger
 
@@ -67,8 +67,8 @@ defmodule SSHt.Tunnel.TCPHandler do
 
   defp ssh_forward(ref, target) do
     case target do
-      {:local, path} -> SSHt.stream_local_forward(ref, path)
-      {:tcpip, {port, to}} -> SSHt.direct_tcpip(ref, {"127.0.0.1", port}, to)
+      {:local, path} -> SSHTunnel.stream_local_forward(ref, path)
+      {:tcpip, {port, to}} -> SSHTunnel.direct_tcpip(ref, {"127.0.0.1", port}, to)
     end
   end
 

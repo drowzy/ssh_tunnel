@@ -1,4 +1,4 @@
-defmodule SSHt do
+defmodule SSHTunnel do
   @moduledoc ~S"""
   Module for creating SSH tunnels using `:ssh`.
 
@@ -10,7 +10,7 @@ defmodule SSHt do
   * `direct-streamlocal` - Forwards to a unix domain socket. This is the same as `ssh -nNT -L 8080:/var/lib/mysql/mysql.sock user@sshserver.example.com`
 
   When using `direct_tcpip/3` or `stream_local_forward/2` directly there will not be any local port or socket bound,
-  this can either be done using `SSHt.Tunnel` or by manually sending data with `:ssh_connection.send/3`
+  this can either be done using `SSHTunnel.Tunnel` or by manually sending data with `:ssh_connection.send/3`
 
   Although `connect/1` can be used to connect to the remote host, other methods are supported.
   One can use [SSHex](https://github.com/rubencaro/sshex), `:ssh.connect/3` for instance.
@@ -22,8 +22,8 @@ defmodule SSHt do
 
   ## Examples
 
-      {:ok, ssh_ref} = SSHt.connect(host: "sshserver.example.com", user: "user", password: "password")
-      {:ok, pid} = SSHt.start_tunnel(pid, {:tcpip, {8080, {"192.168.90.15", 80}}})
+      {:ok, ssh_ref} = SSHTunnel.connect(host: "sshserver.example.com", user: "user", password: "password")
+      {:ok, pid} = SSHTunnel.start_tunnel(pid, {:tcpip, {8080, {"192.168.90.15", 80}}})
       # Send a TCP message for instance HTTP
       %HTTPoison.Response{body: body} = HTTPoison.get!("127.0.0.1:8080")
       IO.puts("Received body: #{body})
@@ -54,20 +54,20 @@ defmodule SSHt do
   end
 
   @doc ~S"""
-  Starts a SSHt.Tunnel process, the tunnel will listen to either a local port or local path and handle
+  Starts a SSHTunnel.Tunnel process, the tunnel will listen to either a local port or local path and handle
   passing messages between the TCP client and ssh connection.
 
   ## Examples
 
-      {:ok, ssh_ref} = SSHt.connect(host: "sshserver.example.com", user: "user", password: "password")
-      {:ok, pid} = SSHt.start_tunnel(pid, {:tcpip, {8080, {"192.168.90.15", 80}}})
+      {:ok, ssh_ref} = SSHTunnel.connect(host: "sshserver.example.com", user: "user", password: "password")
+      {:ok, pid} = SSHTunnel.start_tunnel(pid, {:tcpip, {8080, {"192.168.90.15", 80}}})
       # Send a TCP message
       %HTTPoison.Response{body: body} = HTTPoison.get!("127.0.0.1:8080")
       IO.puts("Received body: #{body})
 
   """
-  @spec start_tunnel(pid(), SSHt.Tunnel.to()) :: {:ok, pid()} | {:error, term()}
-  defdelegate start_tunnel(pid, to), to: SSHt.Tunnel, as: :start
+  @spec start_tunnel(pid(), SSHTunnel.Tunnel.to()) :: {:ok, pid()} | {:error, term()}
+  defdelegate start_tunnel(pid, to), to: SSHTunnel.Tunnel, as: :start
 
   @doc ~S"""
   Creates a ssh directtcp-ip forwarded channel to a remote port.
@@ -80,8 +80,8 @@ defmodule SSHt do
 
       msg = "GET / HTTP/1.1\r\nHost: localhost:8080\r\nUser-Agent: curl/7.47.0\r\nAccept: */*\r\n\r\n"
 
-      {:ok, pid} = SSHt.connect(host: "192.168.1.10", user: "user", password: "password")
-      {:ok, ch} = SSHt.direct_tcpip(pid, {"127.0.0.1", 8080}, {"192.168.1.10", 80})
+      {:ok, pid} = SSHTunnel.connect(host: "192.168.1.10", user: "user", password: "password")
+      {:ok, ch} = SSHTunnel.direct_tcpip(pid, {"127.0.0.1", 8080}, {"192.168.1.10", 80})
       :ok = :ssh_connection.send(pid, ch, msg)
       recieve do
         {:ssh_cm, _, {:data, channel, _, data}} -> IO.puts("Data: #{(data)}")
@@ -130,8 +130,8 @@ defmodule SSHt do
   ```
   msg = "GET /images/json HTTP/1.1\r\nHost: /var/run/docker.sock\r\nAccept: */*\r\n\r\n"
 
-  {:ok, pid} = SSHt.connect(host: "192.168.90.15", user: "user", password: "password")
-  {:ok, ch} = SSHt.stream_local_forward(pid, "/var/run/docker.sock")
+  {:ok, pid} = SSHTunnel.connect(host: "192.168.90.15", user: "user", password: "password")
+  {:ok, ch} = SSHTunnel.stream_local_forward(pid, "/var/run/docker.sock")
   :ok = :ssh_connection.send(pid, ch, msg)
   ```
   """

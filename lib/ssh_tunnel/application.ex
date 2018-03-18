@@ -1,4 +1,4 @@
-defmodule SSHt.Application do
+defmodule SSHTunnel.Application do
   @moduledoc """
   Application module
   """
@@ -6,7 +6,7 @@ defmodule SSHt.Application do
 
   def start(_type, _args) do
     children = [
-      {DynamicSupervisor, name: SSHt.TunnelSupervisor, strategy: :one_for_one}
+      {DynamicSupervisor, name: SSHTunnel.TunnelSupervisor, strategy: :one_for_one}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)

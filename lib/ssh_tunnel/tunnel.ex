@@ -1,10 +1,10 @@
-defmodule SSHt.Tunnel do
+defmodule SSHTunnel.Tunnel do
   @type to :: {:tcpip | :local, tuple()}
 
   @spec start(pid(), to) :: {:ok, pid()} | {:error, term()}
   def start(ref, to) do
     DynamicSupervisor.start_child(
-      SSHt.TunnelSupervisor,
+      SSHTunnel.TunnelSupervisor,
       worker_spec(worker_opts(ref, to))
     )
   end
@@ -23,7 +23,7 @@ defmodule SSHt.Tunnel do
       100,
       :ranch_tcp,
       ranch_opts,
-      SSHt.Tunnel.TCPHandler,
+      SSHTunnel.Tunnel.TCPHandler,
       opts
     )
   end

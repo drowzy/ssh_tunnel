@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure your application as:
 #
-#     config :ssht, key: :value
+#     config :ssh_tunnel, key: :value
 #
 # and access this configuration in your application as:
 #
-#     Application.get_env(:ssht, :key)
+#     Application.get_env(:ssh_tunnel, :key)
 #
 # You can also configure a 3rd-party app:
 #

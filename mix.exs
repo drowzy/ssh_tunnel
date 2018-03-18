@@ -1,19 +1,19 @@
-defmodule SSHt.MixProject do
+defmodule SSHTunnel.MixProject do
   use Mix.Project
 
   @source "https://github.com/drowzy/ssht"
   def project do
     [
-      app: :ssht,
+      app: :ssh_tunnel,
       version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      name: "SSHt",
+      name: "SSHTunnel",
       description: "Create SSH tunnels using Erlang's SSH application",
       source_url: @source,
       homepage_url: @source,
-      docs: [main: "SSHt"],
+      docs: [main: "SSHTunnel"],
       package: package()
     ]
   end
@@ -22,7 +22,7 @@ defmodule SSHt.MixProject do
   def application do
     [
       extra_applications: [:logger, :ssh],
-      mod: {SSHt.Application, []}
+      mod: {SSHTunnel.Application, []}
     ]
   end
 
