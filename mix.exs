@@ -1,7 +1,7 @@
 defmodule SSHTunnel.MixProject do
   use Mix.Project
 
-  @source "https://github.com/drowzy/ssht"
+  @source "https://github.com/drowzy/ssh_tunnel"
   def project do
     [
       app: :ssh_tunnel,
