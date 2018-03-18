@@ -2,7 +2,7 @@
 
 Create SSH tunnels in Elixir
 
-[Documentation for SSHTunnel is available online.](https://hexdocs.pm/ssht)
+[Documentation for SSHTunnel is available online.](https://hexdocs.pm/ssh_tunnel)
 
 ## Installation
 
