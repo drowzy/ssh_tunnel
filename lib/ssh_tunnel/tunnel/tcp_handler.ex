@@ -65,12 +65,11 @@ defmodule SSHTunnel.Tunnel.TCPHandler do
     Logger.info("terminated reason #{inspect(reason)}")
   end
 
-  defp ssh_forward(ref, target) do
-    case target do
-      {:local, path} -> SSHTunnel.stream_local_forward(ref, path)
-      {:tcpip, {port, to}} -> SSHTunnel.direct_tcpip(ref, {"127.0.0.1", port}, to)
-    end
-  end
+  defp ssh_forward(ref, {_, {_, {_, path}}}) when is_binary(path),
+    do: SSHTunnel.stream_local_forward(ref, path)
+
+  defp ssh_forward(ref, {_, {port, {_, port} = to}}) when is_number(port),
+    do: SSHTunnel.direct_tcpip(ref, {"127.0.0.1", port}, to)
 
   defp stringify_clientname(socket) do
     {:ok, {addr, port}} = :inet.peername(socket)

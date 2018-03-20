@@ -14,7 +14,7 @@ defmodule SSHTunnel.Tunnel do
 
     ranch_opts =
       case Keyword.get(opts, :target) do
-        {:local, path} -> [{:local, path}]
+        {:local, {path, _}} -> [{:local, path}]
         {:tcpip, {port, _}} -> [{:port, port}]
       end
 
