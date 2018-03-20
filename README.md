@@ -11,7 +11,7 @@ Add SSHTunnel to your `mix.exs` and run `mix deps.get`
 ```elixir
 def deps do
   [
-    {:ssh_tunnel, "~> 0.1.0"}
+    {:ssh_tunnel, "~> 0.1.1"}
   ]
 end
 ```
@@ -29,7 +29,7 @@ The tunnel process will forward messages from a TCP client to a ssh connection a
 * `directtcp-ip`
 
 ```elixir
-msg = "GET / HTTP/1.1\r\nHost: localhost:8080\r\nUser-Agent: ssht/0.1.0\r\nAccept: */*\r\n\r\n"
+msg = "GET / HTTP/1.1\r\nHost: localhost:8080\r\nUser-Agent: ssht/0.1.1\r\nAccept: */*\r\n\r\n"
 
 {:ok, pid} = SSHTunnel.connect(host: "sshserver.example.com", user: "user", password: "password")
 {:ok, ch} = SSHTunnel.direct_tcpip(pid, {"127.0.0.1", 8080}, {"sshserver.example.com", 80})
