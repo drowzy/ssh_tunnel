@@ -105,17 +105,7 @@ defmodule SSHTunnel do
       orig_port::size(32)
     >>
 
-    case :ssh_connection_handler.open_channel(
-           pid,
-           @direct_tcpip,
-           msg,
-           @ini_window_size,
-           @max_packet_size,
-           :infinity
-         ) do
-      {:open, ch} -> {:ok, ch}
-      {:error, reason} -> {:error, reason}
-    end
+    open_channel(pid, @direct_tcpip, msg, @ini_window_size, @max_packet_size, :infinity)
   end
 
   @doc ~S"""
@@ -139,16 +129,20 @@ defmodule SSHTunnel do
   def stream_local_forward(pid, socket_path) do
     msg = <<byte_size(socket_path)::size(32), socket_path::binary, 0::size(32), 0::size(32)>>
 
+    open_channel(pid, @stream_local, msg, @ini_window_size, @max_packet_size, :infinity)
+  end
+
+  defp open_channel(pid, type, msg, window_size, max_packet_size, timeout) do
     case :ssh_connection_handler.open_channel(
            pid,
-           @stream_local,
+           type,
            msg,
-           @ini_window_size,
-           @max_packet_size,
-           :infinity
+           window_size,
+           max_packet_size,
+           timeout
          ) do
       {:open, ch} -> {:ok, ch}
-      {:error, reason} -> {:error, reason}
+      {:open_error, _, reason, _} -> {:error, to_string(reason)}
     end
   end
 
