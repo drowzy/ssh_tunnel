@@ -11,7 +11,7 @@ Add SSHTunnel to your `mix.exs` and run `mix deps.get`
 ```elixir
 def deps do
   [
-    {:ssh_tunnel, "~> 0.1.1"}
+    {:ssh_tunnel, "~> 0.1.2"}
   ]
 end
 ```
