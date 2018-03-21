@@ -27,7 +27,7 @@ defmodule SSHTunnel.Tunnel.TCPHandler do
 
   def handle_info(
         {:tcp, _, data},
-        %{ssh_ref: ssh, channel: channel, clientname: clientname} = state
+        %{ssh_ref: ssh, channel: channel} = state
       ) do
     :ok = :ssh_connection.send(ssh, channel, data)
 
@@ -68,8 +68,8 @@ defmodule SSHTunnel.Tunnel.TCPHandler do
   defp ssh_forward(ref, {_, {_, {_, path}}}) when is_binary(path),
     do: SSHTunnel.stream_local_forward(ref, path)
 
-  defp ssh_forward(ref, {_, {port, {_, port} = to}}) when is_number(port),
-    do: SSHTunnel.direct_tcpip(ref, {"127.0.0.1", port}, to)
+  defp ssh_forward(ref, {_, {local_port, {_, port} = to}}) when is_number(port),
+    do: SSHTunnel.direct_tcpip(ref, {"127.0.0.1", local_port}, to)
 
   defp stringify_clientname(socket) do
     {:ok, {addr, port}} = :inet.peername(socket)
