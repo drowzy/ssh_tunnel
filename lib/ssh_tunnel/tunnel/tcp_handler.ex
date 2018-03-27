@@ -75,9 +75,15 @@ defmodule SSHTunnel.Tunnel.TCPHandler do
     {:ok, {addr, port}} = :inet.peername(socket)
 
     address =
-      addr
-      |> :inet_parse.ntoa()
-      |> to_string()
+      case addr do
+        :local ->
+          "UNIX-SOCKET://"
+
+        addr ->
+          addr
+          |> :inet_parse.ntoa()
+          |> to_string()
+      end
 
     "#{address}:#{port}"
   end

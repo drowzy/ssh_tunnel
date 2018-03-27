@@ -14,8 +14,8 @@ defmodule SSHTunnel.Tunnel do
 
     ranch_opts =
       case Keyword.get(opts, :target) do
-        {:local, {path, _}} -> [{:local, path}]
-        {:tcpip, {port, _}} -> [{:port, port}]
+        {:local, {path, _}} -> [ip: {:local, path}, port: 0]
+        {:tcpip, {port, _}} -> [port: port]
       end
 
     :ranch.child_spec(
@@ -28,10 +28,8 @@ defmodule SSHTunnel.Tunnel do
     )
   end
 
-  defp worker_opts(ref, {:tcpip, {port, _}} = to), do: basic_opts(ref, base_name(port), to)
-
-  defp worker_opts(ref, {:local, socket_path} = to),
-    do: basic_opts(ref, base_name(socket_path), to)
+  defp worker_opts(ref, {_type, {port_or_path, _}} = to),
+    do: basic_opts(ref, base_name(port_or_path), to)
 
   defp basic_opts(ref, name, target) do
     Keyword.new()
