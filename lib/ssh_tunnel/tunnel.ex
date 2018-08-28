@@ -1,16 +1,24 @@
 defmodule SSHTunnel.Tunnel do
   @type to :: {:tcpip | :local, tuple()}
 
-  @spec start(pid(), to) :: {:ok, pid()} | {:error, term()}
-  def start(ref, to) do
-    DynamicSupervisor.start_child(
-      SSHTunnel.TunnelSupervisor,
-      worker_spec(worker_opts(ref, to))
-    )
+  @spec start(pid(), to, Keyword.t()) :: {:ok, pid()} | {:error, term()}
+  def start(ref, to, opts \\ []) do
+    worker_opts =
+      ref
+      |> worker_opts(to)
+      |> Keyword.merge(opts)
+      |> worker_spec()
+
+    DynamicSupervisor.start_child(SSHTunnel.TunnelSupervisor, worker_opts)
+  end
+
+  @spec stop(pid()) :: :ok | :error
+  def stop(pid) do
+    DynamicSupervisor.terminate_child(SSHTunnel.TunnelSupervisor, pid)
   end
 
   defp worker_spec(opts) do
-    name = Keyword.get(opts, :name)
+    name = Keyword.get(opts, :name, make_ref())
 
     ranch_opts =
       case Keyword.get(opts, :target) do
@@ -28,17 +36,9 @@ defmodule SSHTunnel.Tunnel do
     )
   end
 
-  defp worker_opts(ref, {_type, {port_or_path, _}} = to),
-    do: basic_opts(ref, base_name(port_or_path), to)
-
-  defp basic_opts(ref, name, target) do
+  defp worker_opts(ref, target) do
     Keyword.new()
-    |> Keyword.put(:name, name)
     |> Keyword.put(:ssh_ref, ref)
     |> Keyword.put(:target, target)
-  end
-
-  defp base_name(port_or_path) do
-    "#{__MODULE__}.#{port_or_path}" |> String.to_atom()
   end
 end

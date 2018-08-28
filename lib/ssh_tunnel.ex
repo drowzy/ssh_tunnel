@@ -66,8 +66,8 @@ defmodule SSHTunnel do
       IO.puts("Received body: #{body})
 
   """
-  @spec start_tunnel(pid(), SSHTunnel.Tunnel.to()) :: {:ok, pid()} | {:error, term()}
-  defdelegate start_tunnel(pid, to), to: SSHTunnel.Tunnel, as: :start
+  @spec start_tunnel(pid(), SSHTunnel.Tunnel.to(), Keyword.t()) :: {:ok, pid()} | {:error, term()}
+  defdelegate start_tunnel(pid, to, opts \\ []), to: SSHTunnel.Tunnel, as: :start
 
   @doc ~S"""
   Creates a ssh directtcp-ip forwarded channel to a remote port.
