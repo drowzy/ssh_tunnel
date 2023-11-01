@@ -149,12 +149,14 @@ defmodule SSHTunnel do
   defp defaults(opts) do
     user = Keyword.get(opts, :user, "")
     password = Keyword.get(opts, :password, "")
+    rsa_pass_phrase = Keyword.get(opts, :rsa_pass_phrase, "")
 
     [
       user_interaction: false,
       silently_accept_hosts: true,
       user: String.to_charlist(user),
-      password: String.to_charlist(password)
+      password: String.to_charlist(password),
+      rsa_pass_phrase: String.to_charlist(rsa_pass_phrase)
     ]
   end
 end
