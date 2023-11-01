@@ -45,9 +45,7 @@ defmodule SSHTunnel do
   returns: `{:ok, connection}` or `{:error, reason}`.
   """
   @spec connect(Keyword.t()) :: {:ok, pid()} | {:error, term()}
-  def connect(opts \\ []) do
-    host = Keyword.get(opts, :host, "127.0.0.1")
-    port = Keyword.get(opts, :port, 22)
+  def connect(host \\ "127.0.0.1", port \\ 22, opts \\ []) do
     ssh_config = defaults(opts)
 
     :ssh.connect(String.to_charlist(host), port, ssh_config)
