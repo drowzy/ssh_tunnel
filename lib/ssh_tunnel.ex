@@ -147,16 +147,15 @@ defmodule SSHTunnel do
   end
 
   defp defaults(opts) do
-    user = Keyword.get(opts, :user, "")
-    password = Keyword.get(opts, :password, "")
-    rsa_pass_phrase = Keyword.get(opts, :rsa_pass_phrase, "")
+    # convert strings to charlists for :ssh.connect
+    Enum.map(opts, fn {k, v} ->
+      cond do
+        is_binary(v) ->
+          {k, String.to_charlist(v)}
 
-    [
-      user_interaction: false,
-      silently_accept_hosts: true,
-      user: String.to_charlist(user),
-      password: String.to_charlist(password),
-      rsa_pass_phrase: String.to_charlist(rsa_pass_phrase)
-    ]
+        true ->
+          {k, v}
+      end
+    end)
   end
 end
