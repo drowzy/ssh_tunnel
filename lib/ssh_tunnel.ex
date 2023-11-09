@@ -45,9 +45,7 @@ defmodule SSHTunnel do
   returns: `{:ok, connection}` or `{:error, reason}`.
   """
   @spec connect(Keyword.t()) :: {:ok, pid()} | {:error, term()}
-  def connect(opts \\ []) do
-    host = Keyword.get(opts, :host, "127.0.0.1")
-    port = Keyword.get(opts, :port, 22)
+  def connect(host \\ "127.0.0.1", port \\ 22, opts \\ []) do
     ssh_config = defaults(opts)
 
     :ssh.connect(String.to_charlist(host), port, ssh_config)
@@ -147,14 +145,15 @@ defmodule SSHTunnel do
   end
 
   defp defaults(opts) do
-    user = Keyword.get(opts, :user, "")
-    password = Keyword.get(opts, :password, "")
+    # convert strings to charlists for :ssh.connect
+    Enum.map(opts, fn {k, v} ->
+      cond do
+        is_binary(v) ->
+          {k, String.to_charlist(v)}
 
-    [
-      user_interaction: false,
-      silently_accept_hosts: true,
-      user: String.to_charlist(user),
-      password: String.to_charlist(password)
-    ]
+        true ->
+          {k, v}
+      end
+    end)
   end
 end
